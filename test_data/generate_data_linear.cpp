@@ -13,12 +13,16 @@ int main(void){
         char filename[20];
         sprintf(filename,"%d.in",test+1);
         std::vector<int> start(features[test]);
-        FILE *fp=fopen(filename,"w");     
+        FILE *fp=fopen(filename,"w");    
+        // n m 
         fprintf(fp,"%d %d\n",features[test],size[test]);   
+        // start node features
         for(int j=0;j<features[test];j++) fprintf(fp,"%d ",generator()%100+1);
         fprintf(fp,"\n");
+        // weights for decision boundary
         for(int j=0;j<features[test];j++) fprintf(fp,"%d ",generator()%10+1);   
         fprintf(fp,"\n");
+        // graph nodes that attacker makes
         for(int j=0;j<size[test];j++){
             for(int k=0;k<features[test];k++) fprintf(fp,"%d ",generator()%100+1);
             fprintf(fp,"\n");
