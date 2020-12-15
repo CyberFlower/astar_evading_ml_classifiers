@@ -25,25 +25,23 @@ int hash(int x, int y, int z){
     res+=x; res+=p*y; res+=p*p*z;
     return res;
 }
-// return -1 if current node classified as abnormal
-// else return l0 distance
-int l0_dist(int x, int y, int z){
-    int res=x+y+z-150;
+// return negative if current node classified as abnormal
+int l0_dist(std::vector<int> &arr, int x, int y, int z){
+    int res=arr[0]*x+arr[1]*y+arr[2]*z-150;
     return res;
 }
 class astar{
 private:
     std::priority_queue<std::pair<int,int>,std::vector<std::pair<int,int>>,std::greater<std::pair<int,int>>> pq;
     std::map<int,int> dist, visit;
-    int start_x, start_y, start_z;
+    std::vector<int> start, weight;
 public:
-    astar(int start_x, int start_y, int start_z){
-        this->start_x=start_x;
-        this->start_y=start_y;
-        this->start_z=start_z;
+    astar(std::vector<int> &start, std::vector<int> &weight){
+        this->start=start;
+        this->weight=weight;
     }
     void get_weight(){
-        int stt=hash(start_x,start_y,start_z);
+        int stt=hash(start[0],start[1],start[2]);
         dist[stt]=0;
         pq.push({0,stt});
         while(!pq.empty()){
@@ -51,7 +49,7 @@ public:
             int x=top.second%p,y=(top.second/p)%p,z=top.second/(p*p);            
             if(top.first!=dist[top.second]) continue;
             visit[top.second]=top.first;
-            if(l0_dist(x,y,z)<0) break;
+            if(l0_dist(weight,x,y,z)<0) break;
             for(int i=0;i<6;i++){
                 int dx=(i<2?(i%2==0?1:-1):0);
                 int dy=((i>=2 && i<4)?(i%2==0?1:-1):0);
@@ -61,6 +59,7 @@ public:
                 if(ny<0 || ny>100) continue;
                 if(nz<0 || nz>100) continue;
                 //if(l0_dist(nx,ny,nz)<0) continue;
+                //int w=(i<2?weight[0]:(i<4?weight[1]:weight[2]));
                 if(!dist.count(hash(nx,ny,nz)) || dist[hash(nx,ny,nz)]>top.first+1){
                     dist[hash(nx,ny,nz)]=top.first+1;
                     pq.push({dist[hash(nx,ny,nz)],hash(nx,ny,nz)});
@@ -71,7 +70,7 @@ public:
         int ex=-1,ey=-1,ez=-1;
         for(auto xx:visit){
             int x=xx.first%p, y=(xx.first/p)%p, z=(xx.first/(p*p));
-            if(l0_dist(x,y,z)<0 && xx.second<min_dist){
+            if(l0_dist(weight,x,y,z)<0 && xx.second<min_dist){
                 ex=x, ey=y, ez=z;
                 min_dist=xx.second;
             }
@@ -83,9 +82,12 @@ public:
     }
 };
 int main(void){
+    std::vector<int> start(3), weight(3);
     std::cout<<"input three features: ";
-    int start_x, start_y, start_z; std::cin>>start_x>>start_y>>start_z;
-    astar ast=astar(start_x, start_y, start_z);
+    std::cin>>start[0]>>start[1]>>start[2];
+    std::cout<<"input three weights to change a features: ";
+    std::cin>>weight[0]>>weight[1]>>weight[2];
+    astar ast=astar(start,weight);
     ast.get_weight();
     return 0;
 }
