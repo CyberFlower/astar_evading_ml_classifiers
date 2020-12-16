@@ -125,6 +125,14 @@ public:
         }
         min_dist=(min_dist==1e9?0:min_dist);
         std::cout<<"[-] minimal distance to become abnormal: "<<min_dist<<std::endl;
+        if(min_dist){
+            std::cout<<"[-] Another candidates...: "<<std::endl;            
+            for(auto xx:visit){
+                if(reverse_hash[xx.first]<0){
+                    std::cout<<xx.second<<std::endl;
+                }
+            }            
+        }
         //std::cout<<"[-] abnormal features: "<<ex<<" "<<ey<<" "<<ez<<std::endl;
         return;
     }
