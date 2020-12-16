@@ -20,13 +20,17 @@ int main(void){
         for(int j=0;j<features[test];j++) fprintf(fp,"%d ",generator()%100+1);
         fprintf(fp,"\n");
         // weights for decision boundary
-        for(int j=0;j<features[test];j++) fprintf(fp,"%d ",generator()%10+1);   
-        fprintf(fp,"\n");
+        //for(int j=0;j<features[test];j++) fprintf(fp,"%d ",generator()%10+1);   
+        //fprintf(fp,"\n");
         // graph nodes that attacker makes
         for(int j=0;j<size[test];j++){
             for(int k=0;k<features[test];k++) fprintf(fp,"%d ",generator()%100+1);
             fprintf(fp,"\n");
         }     
+        for(int j=0;j<size[test];j++){
+            for(int k=0;k<features[test];k++) fprintf(fp,"%d ",generator()%100+1);
+            fprintf(fp,"\n");
+        }             
         fclose(fp);
     }
     return 0;

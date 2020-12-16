@@ -27,29 +27,36 @@ private:
     std::priority_queue<std::pair<int,int>,std::vector<std::pair<int,int>>,std::greater<std::pair<int,int>>> pq;
     std::map<int,int> dist, visit;
     std::vector<int> start, weight;
-    //std::map<int,int> reverse_hash;
+    std::map<int,int> reverse_hash;
     std::set<std::vector<int>> nodes;
-    std::map<int,std::vector<int>> graph;
+    std::map<int,std::set<int>> graph;
     int n,m;
+    int lmt;    // constant for decision boundary
+    // return negative if current node classified as abnormal
+    int l0_dist(std::vector<int> &node){
+        int res=0;
+        for(int i=0;i<n;i++) res+=weight[i]*node[i];
+        res-=lmt;
+        return res;
+    }     
     // hash function to represent current node
-    int hash(std::vector<int> crt_node){
+    int hash(std::vector<int> &crt_node){
         long long res=0;
         for(long long feature:crt_node){
             res=(res*prime+feature)%mod;
         }
+        reverse_hash[res]=l0_dist(crt_node);
         return (int)res;
     }   
-    // return negative if current node classified as abnormal
-    int l0_dist(std::vector<int> &arr, int x, int y, int z){
-        int res=arr[0]*x+arr[1]*y+arr[2]*z-150;
-        return res;
-    }     
 public:
     astar(std::vector<int> &start, std::vector<int> &weight, int n, int m){
         this->start=start;
         this->weight=weight;
         this->n=n;
         this->m=m;
+        lmt=0;
+        for(int wei:weight) lmt+=wei;
+        lmt/=2;
     }
     void push_edge(std::vector<int> &example_node){
         nodes.insert(example_node);
@@ -60,14 +67,14 @@ public:
             for(int i=0;i<n;i++){
                 node[i]++;
                 if(nodes.count(node)){
-                    graph[crt_hash].push_back(hash(node));
+                    graph[crt_hash].insert(hash(node));
                 }
                 node[i]--;
             }
             for(int i=0;i<n;i++){
                 node[i]--;
                 if(nodes.count(node)){
-                    graph[crt_hash].push_back(hash(node));
+                    graph[crt_hash].insert(hash(node));
                 }
                 node[i]++;
             }            
@@ -77,12 +84,22 @@ public:
         int stt=hash(start);
         dist[stt]=0;
         pq.push({0,stt});
-        while(!pq.empty()){
+        int cnt=10;
+        while(!pq.empty() && cnt>0){
             auto top=pq.top(); pq.pop();
             //int x=top.second%p,y=(top.second/p)%p,z=top.second/(p*p);            
             if(top.first!=dist[top.second]) continue;
             visit[top.second]=top.first;
-            //if(l0_dist(weight,x,y,z)<0) break;
+            if(reverse_hash[top.second]<0){
+                cnt--;
+                continue;
+            }
+            for(int xx:graph[top.second]){
+                if(dist[xx]>top.first+1){
+                    dist[xx]=top.first+1;
+                    pq.push({dist[xx],xx});
+                }
+            }
             /*for(int i=0;i<6;i++){
                 int dx=(i<2?(i%2==0?1:-1):0);
                 int dy=((i>=2 && i<4)?(i%2==0?1:-1):0);
@@ -99,18 +116,16 @@ public:
                 }
             }*/
         }
-        /*int min_dist=1e9;
-        int ex=-1,ey=-1,ez=-1;
+        int min_dist=1e9;
+        //std::vector<int> result(n,-1);
         for(auto xx:visit){
-            int x=xx.first%p, y=(xx.first/p)%p, z=(xx.first/(p*p));
-            if(l0_dist(weight,x,y,z)<0 && xx.second<min_dist){
-                ex=x, ey=y, ez=z;
+            if(min_dist>xx.second){
                 min_dist=xx.second;
             }
         }
         min_dist=(min_dist==1e9?0:min_dist);
         std::cout<<"[-] minimal distance to become abnormal: "<<min_dist<<std::endl;
-        std::cout<<"[-] abnormal features: "<<ex<<" "<<ey<<" "<<ez<<std::endl;*/
+        //std::cout<<"[-] abnormal features: "<<ex<<" "<<ey<<" "<<ez<<std::endl;
         return;
     }
 };
@@ -118,15 +133,16 @@ int main(void){
     std::ios_base::sync_with_stdio(false); std::cin.tie(NULL);
     clock_t start_time=clock();
     int n,m; std::cin>>n>>m;
+    m*=2;
     std::vector<int> start(n), weight(n);
-    std::cout<<"input"<< n <<" features: ";
+    //std::cout<<"input "<< n <<" features: ";
     for(int i=0;i<n;i++) std::cin>>start[i];
-    std::cout<<"input"<< n <<" weights to change a features: ";
+    //std::cout<<"input "<< n <<" weights to change a features: ";
     for(int i=0;i<n;i++) std::cin>>weight[i];
     astar ast=astar(start,weight,n,m);
     for(int i=0;i<m;i++){
         std::vector<int> tmp(n);
-        for(int j=0;j<n;j++) std::cin>>tmp[i];
+        for(int j=0;j<n;j++) std::cin>>tmp[j];
         ast.push_edge(tmp);
     }
     ast.generate_graph();
