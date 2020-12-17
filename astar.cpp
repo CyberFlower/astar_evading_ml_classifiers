@@ -1,3 +1,9 @@
+/*
+Find the minimum costs for making adversarial  using A* algorithm
+command:
+$ ./astar.exe < test_data/1.in > test_data/1.out
+*/
+
 #include <iostream>
 #include <vector>
 #include <queue>
@@ -30,6 +36,7 @@ private:
     std::map<int,int> reverse_hash;
     std::set<std::vector<int>> nodes;
     std::map<int,std::set<int>> graph;
+    std::map<int,std::vector<int>> dictionary;
     int n,m;
     int lmt;    // constant for decision boundary
     // return negative if current node classified as abnormal
@@ -45,18 +52,20 @@ private:
         for(long long feature:crt_node){
             res=(res*prime+feature)%mod;
         }
+        dictionary[res]=crt_node;
         reverse_hash[res]=l0_dist(crt_node);
         return (int)res;
     }   
 public:
-    astar(std::vector<int> &start, std::vector<int> &weight, int n, int m){
+    astar(std::vector<int> &start, std::vector<int> &weight, int n, int m, int lmt){
         this->start=start;
         this->weight=weight;
         this->n=n;
         this->m=m;
-        lmt=0;
+        this->lmt=lmt;
+        /*lmt=0;
         for(int i=0;i<n;i++) lmt+=weight[i]*start[i];
-        lmt--;
+        lmt--;*/
         nodes.insert(start);
     }
     void push_edge(std::vector<int> &example_node){
@@ -117,24 +126,28 @@ public:
                 }
             }*/
         }
-        int min_dist=1e9;
-        //std::vector<int> result(n,-1);
+        std::vector<std::pair<int,int>> candidate;
         for(auto xx:visit){
-            if(xx.second==0) continue;
-            if(min_dist>xx.second){
-                min_dist=xx.second;
+            if(reverse_hash[xx.first]<0){
+                candidate.push_back({xx.second,xx.first});
             }
         }
-        min_dist=(min_dist==1e9?0:min_dist);
-        std::cout<<"[-] minimal distance to become abnormal: "<<min_dist<<std::endl;
-        if(min_dist){
-            std::cout<<"[-] Another candidates...: "<<std::endl;            
-            for(auto xx:visit){
-                if(reverse_hash[xx.first]<0){
-                    std::cout<<xx.second<<std::endl;
-                }
-            }            
+        if(candidate.empty()){
+            std::cout<<"[-] No available paths..."<<std::endl;
+            return;
         }
+        std::sort(candidate.begin(),candidate.end());
+        std::cout<<"[+] minimal distance to become abnormal: "<<candidate.front().first<<std::endl;
+        std::cout<<"    features: ";
+        for(int i=0;i<n;i++) std::cout<<dictionary[candidate.front().second][i]<<" ";
+        std::cout<<std::endl;
+        std::cout<<"[+] Another candidates...: "<<std::endl;            
+        for(int i=1;i<(int)candidate.size();i++){
+            std::cout<<"["<<i<<"] Distance: "<<candidate[i].first<<std::endl;
+            std::cout<<"    features: ";
+            for(int j=0;j<n;j++) std::cout<<dictionary[candidate[i].second][j]<<" ";
+            std::cout<<std::endl;            
+        }            
         //std::cout<<"[-] abnormal features: "<<ex<<" "<<ey<<" "<<ez<<std::endl;
         return;
     }
@@ -143,20 +156,32 @@ int main(void){
     std::ios_base::sync_with_stdio(false); std::cin.tie(NULL);
     clock_t start_time=clock();
     int n,m; std::cin>>n>>m;
-    m*=2;
+    //m*=2;
     std::vector<int> start(n), weight(n);
     //std::cout<<"input "<< n <<" features: ";
     for(int i=0;i<n;i++) std::cin>>start[i];
     //std::cout<<"input "<< n <<" weights for decision boundary features: ";
     for(int i=0;i<n;i++) std::cin>>weight[i];
-    astar ast=astar(start,weight,n,m);
+    // constant for decision boundary
+    int lmt; std::cin>>lmt;
+    astar ast=astar(start,weight,n,m,lmt);
     for(int i=0;i<m;i++){
         std::vector<int> tmp(n);
         for(int j=0;j<n;j++) std::cin>>tmp[j];
         ast.push_edge(tmp);
     }
+    std::cout<<"[-] Original features: ";
+    for(int i=0;i<n;i++) std::cout<<start[i]<<" ";
+    std::cout<<std::endl;    
+    std::cout<<"[-] Weights: ";
+    for(int i=0;i<n;i++) std::cout<<weight[i]<<" ";
+    std::cout<<std::endl;
+    std::cout<<std::endl;
+
     ast.generate_graph();
     ast.get_weight();
+    std::cout<<std::endl;
+
     std::cout<<"[+] Running time: "<<(clock()-start_time)/CLOCKS_PER_SEC<<"s"<<std::endl;
     return 0;
 }
