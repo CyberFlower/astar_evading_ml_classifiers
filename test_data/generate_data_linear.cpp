@@ -3,6 +3,7 @@
 #include <random>
 #include <time.h>
 #include <vector>
+#include <algorithm>
 
 int main(void){
     clock_t start_time=clock();
@@ -12,18 +13,23 @@ int main(void){
     for(int test=0;test<8;test++){
         char filename[20];
         sprintf(filename,"%d.in",test+1);
-        std::vector<int> start(features[test]);
         FILE *fp=fopen(filename,"w");    
-        // n m 
-        fprintf(fp,"%d %d\n",features[test],size[test]);   
+        int n=features[test], m=size[test];
+        fprintf(fp,"%d %d\n",n,m);   
         // start node features
-        for(int j=0;j<features[test];j++) fprintf(fp,"%d ",generator()%100+1);
+        std::vector<int> start(n), weight(n);
+        for(int j=0;j<features[test];j++) fprintf(fp,"%d ",start[j]=generator()%100+1);
         fprintf(fp,"\n");
         // weights for decision boundary
-        //for(int j=0;j<features[test];j++) fprintf(fp,"%d ",generator()%10+1);   
+        for(int j=0;j<features[test];j++) fprintf(fp,"%d ",weight[j]=generator()%10+1);   
         //fprintf(fp,"\n");
         // graph nodes that attacker makes
-        for(int j=0;j<size[test];j++){
+        for(int j=0;j<std::min(features[test],start[0]);j++){
+            fprintf(fp,"%d ",j);
+            for(int k=1;k<features[test];k++) fprintf(fp,"%d ",start[k]);
+            fprintf(fp,"\n");
+        }
+        for(int j=0;j<size[test]-start[0];j++){
             for(int k=0;k<features[test];k++) fprintf(fp,"%d ",generator()%100+1);
             fprintf(fp,"\n");
         }     

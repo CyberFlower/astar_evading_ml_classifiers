@@ -55,8 +55,9 @@ public:
         this->n=n;
         this->m=m;
         lmt=0;
-        for(int wei:weight) lmt+=wei;
-        lmt/=2;
+        for(int i=0;i<n;i++) lmt+=weight[i]*start[i];
+        lmt--;
+        nodes.insert(start);
     }
     void push_edge(std::vector<int> &example_node){
         nodes.insert(example_node);
@@ -95,7 +96,7 @@ public:
                 continue;
             }
             for(int xx:graph[top.second]){
-                if(dist[xx]>top.first+1){
+                if(!dist.count(xx) || dist[xx]>top.first+1){
                     dist[xx]=top.first+1;
                     pq.push({dist[xx],xx});
                 }
@@ -119,6 +120,7 @@ public:
         int min_dist=1e9;
         //std::vector<int> result(n,-1);
         for(auto xx:visit){
+            if(xx.second==0) continue;
             if(min_dist>xx.second){
                 min_dist=xx.second;
             }
@@ -145,7 +147,7 @@ int main(void){
     std::vector<int> start(n), weight(n);
     //std::cout<<"input "<< n <<" features: ";
     for(int i=0;i<n;i++) std::cin>>start[i];
-    //std::cout<<"input "<< n <<" weights to change a features: ";
+    //std::cout<<"input "<< n <<" weights for decision boundary features: ";
     for(int i=0;i<n;i++) std::cin>>weight[i];
     astar ast=astar(start,weight,n,m);
     for(int i=0;i<m;i++){
