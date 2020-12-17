@@ -1,5 +1,6 @@
 /*
 Find the minimum costs for making adversarial  using A* algorithm
+You can get more candidates by changing candidate_num, and recompile
 command:
 $ ./astar.exe < test_data/1.in > test_data/1.out
 */
@@ -11,6 +12,7 @@ $ ./astar.exe < test_data/1.in > test_data/1.out
 #include <set>
 #include <algorithm>
 #include <time.h>
+#define candidate_num 10
 /*struct node{
     int x,y,z; 
     node(){}
@@ -94,7 +96,7 @@ public:
         int stt=hash(start);
         dist[stt]=0;
         pq.push({0,stt});
-        int cnt=10;
+        int cnt=candidate_num;
         while(!pq.empty() && cnt>0){
             auto top=pq.top(); pq.pop();
             //int x=top.second%p,y=(top.second/p)%p,z=top.second/(p*p);            
