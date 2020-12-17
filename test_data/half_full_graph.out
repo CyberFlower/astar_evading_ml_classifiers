@@ -1,0 +1,26 @@
+[-] Original features: 10 10 10 10 10 
+[-] Weights: 10 3 8 5 10 
+
+[+] minimal distance to become abnormal: 19
+    features: 1 9 9 10 2 
+[+] Another candidates...: 
+[1] Distance: 19
+    features: 1 9 10 10 1 
+[2] Distance: 19
+    features: 1 10 6 10 4 
+[3] Distance: 19
+    features: 1 10 7 10 3 
+[4] Distance: 19
+    features: 1 10 8 9 3 
+[5] Distance: 19
+    features: 1 10 8 10 2 
+[6] Distance: 19
+    features: 1 10 9 9 2 
+[7] Distance: 19
+    features: 1 10 9 10 1 
+[8] Distance: 19
+    features: 1 10 10 9 1 
+[9] Distance: 19
+    features: 2 9 9 10 1 
+
+[+] Running time: 5s
